@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!--    导入properties配置文件-->
+    <properties resource="db.properties"/>
+
+<!--    <settings>
+            <setting name="" value=""/>
+        </settings>
+        该标签用于查询数据优化，但是用这个比较鸡肋，项目开发中一般不会使用
+        那如果遇到了海量级别的数据我们如何进行优化
+        基础操作
+            对于常用的查询条件的字段，设置索引，索引不能随便加，对于查询时比较常用的字段我们才需要加索引
+        高级操作
+            使用nosql数据库，redis缓存数据库
+        专业操作
+            搜索引擎Elasticsearch与Solr
+            针对与电商行业
+-->
+
+
+<!--        在全局配置文件中可以为一些类起别名
+            起别名方式一：
+                typeAlias标签为指定的类起别名，别名的命名由我们自己来决定
+                type：要为哪个domain起别名 填写包.类名
+                alias：别名名称
+
+                <typeAliases>
+                    <typeAlias type="com.bjpowernode.domain.Student" alias="stu"/>
+                </typeAliases>
+
+                起别名方式二：
+                package标签批量起别名，别名的命名默认由MyBatis决定，别名为类名（不区分大小写）
+                name：指定一个包结构，表示在该包下，所有的domain自动起好别名
+
+                <typeAliases>
+                    <package name="com.bjpowernode.domain"/>
+                </typeAliases>
+
+                总结：一般使用第二种批量取别名高效，不过取别名并不是所有公司都会做，有些公司为了可读性，并不会取别名
+-->
+    <typeAliases>
+        <package name="com.bjpowernode.domain"/>
+    </typeAliases>
+
+
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+
+    <!--    注册映射文件-->
+    <mappers>
+<!--        注册映射文件也有多种方式
+            第一种单例注册
+            <mapper resource="com/bjpowernode/dao/StudentDao.xml"/>
+            第二种也是单例注册
+            <mapper class="com.bjpowernode.dao.StudentDao"/>
+            第三种批量注册
+            <package name="com/bjpowernode/dao"/>
+            总结：一般使用第三种批量注册
+-->
+        <package name="com/bjpowernode/dao"/>
+    </mappers>
+</configuration>

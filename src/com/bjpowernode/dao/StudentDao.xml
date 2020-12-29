@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bjpowernode.dao.StudentDao">
+<!--
+        namespace：命名空间，
+            不同的mapper映射文件使用namespace来区分
+            不同的mapper映射文件所使用的namespace的命名不允许重复
+            如果与MyBatis的动态代理相结合，那命名空间就必须为相应的全路径名
+        parameterType：为sql语句传递的类型
+        resultType：返回的结果是什么
+        id必须与相应的接口中的方法名相同
+-->
+    <select id="getById" parameterType="java.lang.String" resultType="com.bjpowernode.domain.Student">
+        select id,name,age from tbl_student where id=#{id}
+    </select>
+    <select id="getAll" resultType="Student"><!--如果已经在全局配置文件中起别名，则直接用别名即可-->
+        select id,name,age from tbl_student
+    </select>
+    <insert id="save" parameterType="com.bjpowernode.domain.Student">
+        insert into tbl_student(id,name,age) values(#{id},#{name},#{age})
+    </insert>
+    <update id="update" parameterType="com.bjpowernode.domain.Student">
+        update tbl_student set name=#{name},age=#{age} where id=#{id}
+    </update>
+    <delete id="delete" parameterType="java.lang.String">
+        delete from tbl_student where id=#{id}
+    </delete>
+<!--
+    在模糊查询中我们使用'%'空格#{name}空格'%'的方法，
+    sql语句中，空格表示拼接sql语句，不能使用+号拼接
+    开发中我们就使用这种方法进行模糊查询
+-->
+    <select id="select1" resultType="Student">
+        select * from tbl_student where name like '%' #{name} '%'
+    </select>
+
+<!--    返回值map-->
+    <select id="select2" resultType="map">
+        select * from tbl_student
+    </select>
+
+<!--    <resultMap id="" type=""></resultMap>
+        id:resultMap标签的唯一标识，将来在使用到该resultMap标签的时候，使用id来找到这组标签
+        type：指定一个类型，与数据库表一一对应，建立起表字段和类属性的名字一一匹配的关系
+-->
+    <resultMap id="stuMap" type="Student">
+<!--        id标签：用来配置主键的对应关系的
+            result标签：用来配置普通字段对应关系的
+            property属性：配置的是类中的属性名
+            column属性：配置的是表中的字段名
+-->
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+    </resultMap>
+    <!--映射设置后，返回值使用resultMap标签，而值则使用设置的映射的id值-->
+    <select id="select3" resultMap="stuMap">
+        select * from tbl_student
+    </select>
+
+<!--    where及其if标签的运用-->
+    <select id="select4" resultType="Student">
+        select * from tbl_student
+        <!--where标签
+            当where标签在使用的时候必须要搭配where标签中的if标签来使用
+            通过if标签的判断，如果有查询条件，则展现where关键字，如果没有查询条件则不展现where关键字
+        -->
+        <where>
+            <if test="name!=null and name!=''">
+                name like '%' #{name} '%'
+            </if>
+            <if test="address!=null and name!=''">
+                and address like '%' #{address} '%'
+            </if>
+        </where>
+    </select>
+
+<!--    foreach标签的运用-->
+    <select id="select5" resultType="Student">
+        select * from tbl_student
+        where id in
+        <!--
+            foreach标签：用来遍历传递过来的数组参数
+            collection：标识传递参数的类型
+                array：数组
+                list：集合
+            item：每一次遍历出来的元素，在使用该元素的时候，需要套用在#{}中
+            open：拼接循环的开始符号
+            close：拼接循环的结束符号separator：元素与元素之间的分隔号符
+        -->
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+<!--
+        使用sql标签制作sql片段
+        sql片段的作用是用来代替sql语句中的代码
+        如果你的mapper映射文件中出现大量重复的sql代码，可以使用制作sql片段来代替这些重复的代码
+        id：sql片段的唯一标识，将来用于找到sql片段进行定位
+        注：将来实际开发中，使用sql片段用来代替重复率高，且复杂的子查询
+-->
+    <sql id="sql1">
+        select * from tbl_student
+    </sql>
+    <select id="select6" resultType="Student">
+        <include refid="sql1"/>where id=#{id}<!--引用sql片段-->
+    </select>
+
+<!--    多表联查-->
+    <select id="select7" resultType="map">
+        select s.name as sname,c.name as cname<!--这里需要起一下别名，因为查出来的name重复，map中key值不允许重复-->
+        from tbl_student s
+        join tbl_classroom c
+        on s.classroomId=c.id
+    </select>
+
+</mapper>
